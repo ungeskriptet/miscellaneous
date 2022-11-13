@@ -57,6 +57,17 @@ heimdall-wait-for-device () {
 	done
 }
 
+fastboot-switch-slot () {
+	current_slot=$(fastboot getvar current-slot 2>&1|grep current-slot)
+	grep "current-slot: a" <<< $current_slot && fastboot set_active b
+	grep "current-slot: b" <<< $current_slot && fastboot set_active a
+}
+
+samloader-dl () {
+	version=$(samloader -m $1 -r $2 checkupdate)
+	samloader -m $1 -r $2 download -v $version -O . -D
+}
+
 alias cdpmaports="cd $HOME/.local/var/pmbootstrap/cache_git/pmaports"
 alias edl-flashall="for i in $(ls | sed 's/.bin//g'); do [[ ! $i =~ ^gpt.+$ ]] && [[ $i != 'extracted' ]] && [[ "$i" != 'edl_config.json' ]] && edl --loader $1 w $i $i.bin; done"
 alias reboot="read -q '?Reboot? [Y/N]: ' && reboot"
