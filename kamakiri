@@ -1,0 +1,25 @@
+#!/bin/sh
+KAMAKIRI_PATH=$HOME/.local/share/kamakiri
+
+cd $KAMAKIRI_PATH
+if [ "$1" = "-r" ] && [[ -z $2 ]]
+then
+	sh boot-recovery.sh
+elif [ "$1" = "-f" ]
+then
+	sh boot-fastboot.sh
+elif [ "$1" = "-b" ]
+then
+	sh bootrom-step.sh
+elif [ "$1" = "-t" ]
+then
+	sh fastboot-step.sh
+else
+    echo "Usage: kamakiri [option]
+
+Options:
+	-r: Boot into recovery mode
+	-f: Boot into fastboot mode
+	-b: Run the boot ROM exploit
+	-t: Flash TWRP"
+fi
