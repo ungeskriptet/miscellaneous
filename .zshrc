@@ -68,6 +68,14 @@ samloader-dl () {
 	samloader -m $1 -r $2 download -v $version -O . -D
 }
 
+gencclist () {
+	echo "$(./scripts/get_maintainer.pl --nogit --nogit-fallback --norolestats --r "$@" | xargs -I {} echo --to=\"{}\" | tr '\n' ' ')"
+}
+
+extract-section0 () {
+	uefi-firmware-parser -p -b -e section0 > output.txt && volume=$(grep -o -P '(?<=Wrote: ./).*(?=.fv)' output.txt) && while read -r name && read -r guid <&3; do mv $volume/file-$guid $volume/$name; done <<(grep -o -P '(?<=Name: ).*' output.txt) 3<<(grep -o -P '(?<=: ).*(?= type)' output.txt|tail +3) && rm -rf output.txt
+}
+
 alias cdpmaports="cd $HOME/.local/var/pmbootstrap/cache_git/pmaports"
 alias edl-flashall="for i in $(ls | sed 's/.bin//g'); do [[ ! $i =~ ^gpt.+$ ]] && [[ $i != 'extracted' ]] && [[ "$i" != 'edl_config.json' ]] && edl --loader $1 w $i $i.bin; done"
 alias reboot="read -q '?Reboot? [Y/N]: ' && reboot"
