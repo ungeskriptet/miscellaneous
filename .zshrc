@@ -76,8 +76,10 @@ extract-section0 () {
 	uefi-firmware-parser -p -b -e section0 > output.txt && volume=$(grep -o -P '(?<=Wrote: ./).*(?=.fv)' output.txt) && while read -r name && read -r guid <&3; do mv $volume/file-$guid $volume/$name; done <<(grep -o -P '(?<=Name: ).*' output.txt) 3<<(grep -o -P '(?<=: ).*(?= type)' output.txt|tail +3) && rm -rf output.txt
 }
 
+search () { find . -iname "*$1*"}
+
 alias cdpmaports="cd $HOME/.local/var/pmbootstrap/cache_git/pmaports"
-alias edl-flashall="for i in $(ls | sed 's/.bin//g'); do [[ ! $i =~ ^gpt.+$ ]] && [[ $i != 'extracted' ]] && [[ "$i" != 'edl_config.json' ]] && edl --loader $1 w $i $i.bin; done"
+alias edl-flashall="for i in $(ls | sed 's/.bin//g'); do [[ ! $i =~ ^gpt.+$ ]] && [[ $i != 'extracted' ]] && [[ "$i" != 'edl_config.json' ]] && edl --loader $2 w $i $i.bin; done"
 alias reboot="read -q '?Reboot? [Y/N]: ' && reboot"
 alias symlink-python2="sudo rm -rf /usr/bin/python && sudo ln -s /usr/bin/python2 /usr/bin/python"
 alias symlink-python3="sudo rm -rf /usr/bin/python && sudo ln -s /usr/bin/python3 /usr/bin/python"
@@ -87,6 +89,8 @@ alias vim="nvim"
 alias yt-mp3="yt-dlp -x --audio-format mp3"
 alias w-heimdall="heimdall-wait-for-device && heimdall"
 alias editor="stfu gnome-text-editor"
+alias gen-vbmeta-disabled="avbtool make_vbmeta_image --flags 2 --padding_size 4096 --output vbmeta_disabled.img"
+alias mpv-hdmi="mpv --demuxer-lavf-o=video_size=1280x720,input_format=mjpeg av://v4l2:/dev/video0 --profile=low-latency"
 
 # Oh my ZSH
 ZSH_CACHE_DIR=$HOME/.cache/oh-my-zsh
