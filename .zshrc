@@ -18,17 +18,23 @@ bindkey "^[[1;5C" forward-word
 export PATH="$PATH:$HOME/.local/bin:$HOME/.cargo/bin"
 export EDITOR=nvim
 export ANDROID="/mnt/1TB_HDD/Android"
+export OO_PS4_TOOLCHAIN="$HOME/Projects/PS4/OpenOrbis/PS4Toolchain"
 
 #LineageOS
 export USE_CCACHE=1
 export CCACHE_EXEC=/usr/bin/ccache
-export ANDROID_JACK_VM_ARGS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4G"
 ccache -M 50G > /dev/null
 
 setopt rm_star_silent
 eval "$(register-python-argcomplete pmbootstrap)"
 
-ucd (){
+adb-flash () {
+	adb push $2 /tmp
+	adb shell "cat /tmp/$2 > /dev/block/$1" && echo "$2 flashed to $1 successfully"
+	[ "$3" = "-r" ] && adb reboot
+}
+
+ucd () {
     depth=$1
     dir="$PWD"
     for iter in $(seq 1 $depth)
@@ -72,11 +78,37 @@ gencclist () {
 	echo "$(./scripts/get_maintainer.pl --nogit --nogit-fallback --norolestats --r "$@" | xargs -I {} echo --to=\"{}\" | tr '\n' ' ')"
 }
 
+upload-file () {
+	curl \
+	-F key=[CENSORED] \
+	-F file=@$1 \
+	https://catgirlsare.sexy/api/upload
+}
+
 extract-section0 () {
 	uefi-firmware-parser -p -b -e section0 > output.txt && volume=$(grep -o -P '(?<=Wrote: ./).*(?=.fv)' output.txt) && while read -r name && read -r guid <&3; do mv $volume/file-$guid $volume/$name; done <<(grep -o -P '(?<=Name: ).*' output.txt) 3<<(grep -o -P '(?<=: ).*(?= type)' output.txt|tail +3) && rm -rf output.txt
 }
 
 search () { find . -iname "*$1*"}
+
+confirm-multiboot () { grub-file --is-x86-multiboot $1 && echo "Multiboot 1 confirmed" || echo "No multiboot header found!" }
+
+fritz-reconnect () {
+	curl \
+	-H 'Content-Type: text/xml; charset="utf-8"' \
+	-H "SoapAction: urn:schemas-upnp-org:service:WANIPConnection:1#ForceTermination" \
+	-d '<?xml version="1.0" encoding="utf-8"?> <s:Envelope s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"> <s:Body> <u:ForceTermination xmlns:u="urn:schemas-upnp-org:service:WANIPConnection:1" /> </s:Body> </s:Envelope>' \
+	"http://fritz.box:49000/igdupnp/control/WANIPConn1"
+}
+
+adb-restart-root () {
+	adb shell su -c "resetprop ro.debuggable 1"
+	adb shell su -c "resetprop service.adb.root 1"
+	adb shell su -c "magiskpolicy --live \'allow adbd adbd process setcurrent\'"
+	adb shell su -c "magiskpolicy --live \'allow adbd su process dyntransition\'"
+	adb shell su -c "magiskpolicy --live \'permissive { su }\'"
+	adb shell su -c "kill -9 \`ps -A | grep adbd | awk '{print $2}'\`"
+}
 
 alias cdpmaports="cd $HOME/.local/var/pmbootstrap/cache_git/pmaports"
 alias edl-flashall="for i in $(ls | sed 's/.bin//g'); do [[ ! $i =~ ^gpt.+$ ]] && [[ $i != 'extracted' ]] && [[ "$i" != 'edl_config.json' ]] && edl --loader $2 w $i $i.bin; done"
