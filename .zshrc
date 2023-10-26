@@ -85,10 +85,6 @@ upload-file () {
 	https://catgirlsare.sexy/api/upload
 }
 
-extract-section0 () {
-	uefi-firmware-parser -p -b -e section0 > output.txt && volume=$(grep -o -P '(?<=Wrote: ./).*(?=.fv)' output.txt) && while read -r name && read -r guid <&3; do mv $volume/file-$guid $volume/$name; done <<(grep -o -P '(?<=Name: ).*' output.txt) 3<<(grep -o -P '(?<=: ).*(?= type)' output.txt|tail +3) && rm -rf output.txt
-}
-
 search () { find . -iname "*$1*"}
 
 confirm-multiboot () { grub-file --is-x86-multiboot $1 && echo "Multiboot 1 confirmed" || echo "No multiboot header found!" }
