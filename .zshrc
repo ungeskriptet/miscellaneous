@@ -107,7 +107,6 @@ adb-restart-root () {
 }
 
 alias cdpmaports="cd $HOME/.local/var/pmbootstrap/cache_git/pmaports"
-alias edl-flashall="for i in $(ls | sed 's/.bin//g'); do [[ ! $i =~ ^gpt.+$ ]] && [[ $i != 'extracted' ]] && [[ "$i" != 'edl_config.json' ]] && edl --loader $2 w $i $i.bin; done"
 alias reboot="read -q '?Reboot? [Y/N]: ' && reboot"
 alias symlink-python2="sudo rm -rf /usr/bin/python && sudo ln -s /usr/bin/python2 /usr/bin/python"
 alias symlink-python3="sudo rm -rf /usr/bin/python && sudo ln -s /usr/bin/python3 /usr/bin/python"
