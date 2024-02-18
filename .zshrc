@@ -21,9 +21,9 @@ export ANDROID="/mnt/1TB_HDD/Android"
 export OO_PS4_TOOLCHAIN="$HOME/Projects/PS4/OpenOrbis/PS4Toolchain"
 
 #LineageOS
-export USE_CCACHE=1
-export CCACHE_EXEC=/usr/bin/ccache
-ccache -M 50G > /dev/null
+#export USE_CCACHE=1
+#export CCACHE_EXEC=/usr/bin/ccache
+#ccache -M 50G > /dev/null
 
 setopt rm_star_silent
 eval "$(register-python-argcomplete pmbootstrap)"
@@ -69,18 +69,13 @@ fastboot-switch-slot () {
 	grep "current-slot: b" <<< $current_slot && fastboot set_active a
 }
 
-samloader-dl () {
-	version=$(samloader -m $1 -r $2 checkupdate)
-	samloader -m $1 -r $2 download -v $version -O . -D
-}
-
 gencclist () {
 	echo "$(./scripts/get_maintainer.pl --nogit --nogit-fallback --norolestats --r "$@" | xargs -I {} echo --to=\"{}\" | tr '\n' ' ')"
 }
 
 upload-file () {
 	curl \
-	-F key=[CENSORED] \
+	-F key=[ no :) ] \
 	-F file=@$1 \
 	https://catgirlsare.sexy/api/upload
 }
@@ -106,6 +101,10 @@ adb-restart-root () {
 	adb shell su -c "kill -9 \`ps -A | grep adbd | awk '{print $2}'\`"
 }
 
+hexdiff () {
+	diff <(hexdump -C $1) <(hexdump -C $2)
+}
+
 alias cdpmaports="cd $HOME/.local/var/pmbootstrap/cache_git/pmaports"
 alias reboot="read -q '?Reboot? [Y/N]: ' && reboot"
 alias symlink-python2="sudo rm -rf /usr/bin/python && sudo ln -s /usr/bin/python2 /usr/bin/python"
@@ -114,7 +113,7 @@ alias compress-video="ffmpeg -vcodec libx264 -crf 28 output.mp4 -i"
 alias rp="realpath"
 alias vim="nvim"
 alias yt-mp3="yt-dlp -x --audio-format mp3"
-alias w-heimdall="heimdall-wait-for-device && heimdall"
+alias heimdall="heimdall-wait-for-device && heimdall"
 alias editor="stfu gnome-text-editor"
 alias gen-vbmeta-disabled="avbtool make_vbmeta_image --flags 2 --padding_size 4096 --output vbmeta_disabled.img"
 alias mpv-hdmi="mpv --demuxer-lavf-o=video_size=1280x720,input_format=mjpeg av://v4l2:/dev/video0 --profile=low-latency"
