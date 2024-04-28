@@ -8,6 +8,7 @@ HISTSIZE=1000
 SAVEHIST=1000
 HISTFILE=~/.zsh_history
 unsetopt share_history
+setopt nobeep
 
 bindkey "^[[3~" delete-char
 bindkey "^[[H" beginning-of-line
@@ -30,8 +31,8 @@ eval "$(register-python-argcomplete pmbootstrap)"
 
 adb-flash () {
 	adb push $2 /tmp
-	adb shell "cat /tmp/$2 > /dev/block/$1" && echo "$2 flashed to $1 successfully"
-	[ "$3" = "-r" ] && adb reboot
+	adb shell "cat /tmp/$(basename $2) > /dev/block/by-name/$1" && echo "$2 flashed to $1 successfully" &&
+	[ "$3" = "-r" ] && adb reboot $4
 }
 
 ucd () {
@@ -75,7 +76,7 @@ gencclist () {
 
 upload-file () {
 	curl \
-	-F key=[ no :) ] \
+	-F key=[ let's not ] \
 	-F file=@$1 \
 	https://catgirlsare.sexy/api/upload
 }
@@ -103,6 +104,27 @@ adb-restart-root () {
 
 hexdiff () {
 	diff <(hexdump -C $1) <(hexdump -C $2)
+}
+
+adb-dump-regulators () {
+	adb shell 'cd /sys/class/regulator; for i in $(ls); do cat $i/name; [ -f "$i/max_microvolts" ] && echo "$i/name" || echo "$i/name\n"; [ -f "$i/min_microvolts" ] && cat $i/min_microvolts && echo "$i/min_microvolts"; [ -f $i/max_microvolts ] && cat $i/max_microvolts && echo "$i/max_microvolts\n"; done'
+}
+
+gen-dtbo-empty () {
+	if [ -z "$1" ]; then
+		echo "DTBO partition size in bytes required"
+	else
+		dd if=/dev/zero of=empty_dtbo.img count=1
+		avbtool add_hash_footer --partition_name dtbo --partition_size $1 --image empty_dtbo.img
+	fi
+}
+
+adb-install-magisk () {
+	[ -f magisk.apk ] && rm magisk.apk
+	MAGISK_VER=$(curl --silent https://api.github.com/repos/topjohnwu/Magisk/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | sed 's/v//') &&
+	curl -L https://github.com/topjohnwu/Magisk/releases/download/v$MAGISK_VER/Magisk-v$MAGISK_VER.apk -o magisk.apk &&
+	adb install magisk.apk &&
+	[ -f magisk.apk ] && rm magisk.apk
 }
 
 alias cdpmaports="cd $HOME/.local/var/pmbootstrap/cache_git/pmaports"
