@@ -3,6 +3,8 @@ set nu
 set laststatus=0 ruler
 set incsearch
 set guicursor=n-v-c-i:block
+set autoindent noexpandtab tabstop=4 shiftwidth=4
+set mouse=
 syntax on
 highlight RedundantSpaces ctermbg=red guibg=red
 match RedundantSpaces /\s\+$/
