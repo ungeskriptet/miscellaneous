@@ -1,6 +1,4 @@
 #!/usr/bin/zsh
-source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 HISTFILE=~/.config/zsh/.histfile
 HISTSIZE=1000
@@ -10,21 +8,28 @@ export SSH_ASKPASS=/usr/bin/ksshaskpass
 export SSH_ASKPASS_REQUIRE=prefer
 EDITOR=nvim
 
-autoload -Uz edit-command-line history-search-end compinit bashcompinit
+autoload -Uz edit-command-line \
+             history-search-end \
+             compinit \
+             bashcompinit \
+             bracketed-paste-magic \
+             url-quote-magic
 
-setopt autocd extendedglob nomatch
+setopt autocd extendedglob nomatch incappendhistory
 unsetopt beep
 bindkey -e
 
 zle -N edit-command-line
 zle -N history-beginning-search-backward-end history-search-end
 zle -N history-beginning-search-forward-end history-search-end
+zle -N self-insert url-quote-magic
+zle -N bracketed-paste bracketed-paste-magic
 
-bindkey "^[[A" history-beginning-search-backward-end
-bindkey "^[[B" history-beginning-search-forward-end
 bindkey "^[[3~" delete-char
 bindkey "^[[1;5D" backward-word
 bindkey "^[[1;5C" forward-word
+bindkey "^[[H" beginning-of-line
+bindkey "^[[F" end-of-line
 bindkey "^X^E" edit-command-line
 
 zstyle ':completion:*' completer _complete _ignored _correct _approximate
@@ -37,17 +42,15 @@ zstyle :compinstall filename '/home/david/.config/zsh/.zshrc'
 compinit; bashcompinit
 PROMPT="╭─%F{magenta}%n@%M%f %F{blue}%~%f >
 ╰─ "
-RPROMPT="%F{yellow}%*%f"
 
 adb-dump-regulators () {
         adb shell 'cd /sys/class/regulator; for i in $(ls); do cat $i/name; [ -f "$i/max_microvolts" ] && echo "$i/name" || echo "$i/name\n"; [ -f "$i/min_microvolts" ] && cat $i/min_microvolts && echo "$i/min_microvolts"; [ -f $i/max_microvolts ] && cat $i/max_microvolts && echo "$i/max_microvolts\n"; done'
 }
 
 adb-flash () {
-	adb push $2 /tmp
-	adb shell "cat /tmp/$2 > /dev/block/by-name/$1" &&
-	echo "$2 flashed to $1 successfully"
-	[ "$3" = "-r" ] && adb reboot $4
+        cat $2 | adb shell "cat > /dev/block/by-name/$1" &&
+        echo "Flashing finished" &&
+        [ "$3" = "-r" ] && adb reboot $4
 }
 
 adb-install-magisk () {
@@ -78,35 +81,39 @@ git-branch-name() {
 }
 
 heimdall-wait-for-device () {
-	echo "< wait for any device >"
-	while ! heimdall detect > /dev/null 2>&1; do
-		sleep 1
-	done
+        echo "< wait for any device >"
+        while ! heimdall detect > /dev/null 2>&1; do
+                sleep 1
+        done
 }
 
 scp-pull () {
-	scp $1:$2 .
+        scp $1:$2 .
 }
 
 search () {
-	find . -iname "*$1*"
+        find . -iname "*$1*"
 }
 
 stfu () {
-	$@>/dev/null 2>&1 &!
+        $@>/dev/null 2>&1 &!
 }
 
 ucd () {
-	depth=$1
-	dir="$PWD"
-	for iter in $(seq 1 $depth)
-	do
-		cd ..
-	done
-	pwd
+        depth=$1
+        dir="$PWD"
+        for iter in $(seq 1 $depth)
+        do
+                cd ..
+        done
+        pwd
 }
 
+alias gen-vbmeta-disabled="avbtool make_vbmeta_image --flags 2 --padding_size 4096 --output vbmeta_disabled.img"
 alias heimdall="heimdall-wait-for-device && heimdall"
 alias reboot="read -q '?Reboot? [Y/N]: ' && sudo reboot"
 alias rp="realpath"
 alias vim="nvim"
+
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
