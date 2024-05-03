@@ -1,47 +1,48 @@
 #!/usr/bin/zsh
 
+EDITOR=nvim
 HISTFILE=~/.config/zsh/.histfile
 HISTSIZE=1000
-SAVEHIST=1000
+LS_COLORS='no=00:fi=00:di=01;34:ln=00;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=41;33;01:ex=00;32:*.cmd=00;32:*.exe=01;32:*.com=01;32:*.bat=01;32:*.btm=01;32:*.dll=01;32:*.tar=00;31:*.tbz=00;31:*.tgz=00;31:*.rpm=00;31:*.deb=00;31:*.arj=00;31:*.taz=00;31:*.lzh=00;31:*.lzma=00;31:*.zip=00;31:*.zoo=00;31:*.z=00;31:*.Z=00;31:*.gz=00;31:*.bz2=00;31:*.tb2=00;31:*.tz2=00;31:*.tbz2=00;31:*.avi=01;35:*.bmp=01;35:*.fli=01;35:*.gif=01;35:*.jpg=01;35:*.jpeg=01;35:*.mng=01;35:*.mov=01;35:*.mpg=01;35:*.pcx=01;35:*.pbm=01;35:*.pgm=01;35:*.png=01;35:*.ppm=01;35:*.tga=01;35:*.tif=01;35:*.xbm=01;35:*.xpm=01;35:*.dl=01;35:*.gl=01;35:*.wmv=01;35:*.aiff=00;32:*.au=00;32:*.mid=00;32:*.mp3=00;32:*.ogg=00;32:*.voc=00;32:*.wav=00;32:'
 PATH=$PATH:$HOME/.local/bin
-export SSH_ASKPASS=/usr/bin/ksshaskpass
-export SSH_ASKPASS_REQUIRE=prefer
-EDITOR=nvim
+SAVEHIST=1000
+SSH_ASKPASS_REQUIRE=prefer
+SSH_ASKPASS=/usr/bin/ksshaskpass
 
 autoload -Uz edit-command-line \
-	     history-search-end \
-	     compinit \
 	     bashcompinit \
 	     bracketed-paste-magic \
-	     url-quote-magic \
+	     compinit \
+	     down-line-or-beginning-search \
+	     history-search-end \
 	     up-line-or-beginning-search \
-	     down-line-or-beginning-search
+	     url-quote-magic
 
 setopt autocd extendedglob nomatch incappendhistory prompt_subst
 unsetopt beep
 bindkey -e
 
+zle -N bracketed-paste bracketed-paste-magic
+zle -N down-line-or-beginning-search
 zle -N edit-command-line
 zle -N self-insert url-quote-magic
-zle -N bracketed-paste bracketed-paste-magic
 zle -N up-line-or-beginning-search
-zle -N down-line-or-beginning-search
 
+bindkey "^[[1;5C" forward-word
+bindkey "^[[1;5D" backward-word
+bindkey "^[[3~" delete-char
 bindkey "^[[A" up-line-or-beginning-search
 bindkey "^[[B" down-line-or-beginning-search
-bindkey "^[[3~" delete-char
-bindkey "^[[1;5D" backward-word
-bindkey "^[[1;5C" forward-word
-bindkey "^[[H" beginning-of-line
 bindkey "^[[F" end-of-line
+bindkey "^[[H" beginning-of-line
 bindkey "^X^E" edit-command-line
 
+zstyle :compinstall filename '/home/david/.zshrc'
 zstyle ':completion:*' completer _complete _ignored _correct _approximate
-zstyle ':completion:*' list-colors ''
+zstyle ':completion:*' insert-tab false
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*' matcher-list 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' 'm:{[:lower:]}={[:upper:]}'
 zstyle ':completion:*' menu select
-zstyle ':completion:*' insert-tab false
-zstyle :compinstall filename '/home/david/.zshrc'
 
 compinit; bashcompinit
 
@@ -72,6 +73,14 @@ adb-restart-root () {
         adb shell su -c "kill -9 \`ps -A | grep adbd | awk '{print $2}'\`"
 }
 
+clo-manual-clone () {
+	vared -p "CLO GitLab path: " -c clopath
+	vared -p "Branch: " -c clobranch
+	vared -p "Clone into: " -c clodirname
+	git clone https://git.codelinaro.org/clo/la/$clopath.git --single-branch --branch $clobranch $clodirname
+	unset clopath clobranch clodirname
+}
+
 heimdall-wait-for-device () {
 	echo "< wait for any device >"
 	while ! heimdall detect > /dev/null 2>&1; do
@@ -83,7 +92,7 @@ precmd () {
 	gitinfo=$(git branch --show-current 2> /dev/null)
 	[[ -z $gitinfo ]] && return
 	[[ -z $(git status --porcelain) ]] && gitinfo="%F{green} ($gitinfo)%f" ||
-	gitinfo="%F{yellow} ($gitinfo %B⬤%b)%f"
+	gitinfo="%F{yellow} ($gitinfo %B●%b)%f"
 }
 
 scp-pull () {
@@ -110,6 +119,7 @@ ucd () {
 
 alias gen-vbmeta-disabled="avbtool make_vbmeta_image --flags 2 --padding_size 4096 --output vbmeta_disabled.img"
 alias heimdall="heimdall-wait-for-device && heimdall"
+alias ls="ls --color=auto"
 alias reboot="read -q '?Reboot? [Y/N]: ' && sudo reboot"
 alias rp="realpath"
 alias vim="nvim"
