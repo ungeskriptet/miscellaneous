@@ -9,13 +9,13 @@ export SSH_ASKPASS_REQUIRE=prefer
 EDITOR=nvim
 
 autoload -Uz edit-command-line \
-             history-search-end \
-             compinit \
-             bashcompinit \
-             bracketed-paste-magic \
-             url-quote-magic
+	     history-search-end \
+	     compinit \
+	     bashcompinit \
+	     bracketed-paste-magic \
+	     url-quote-magic \
 
-setopt autocd extendedglob nomatch incappendhistory
+setopt autocd extendedglob nomatch incappendhistory prompt_subst
 unsetopt beep
 bindkey -e
 
@@ -37,20 +37,18 @@ zstyle ':completion:*' list-colors ''
 zstyle ':completion:*' matcher-list 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' 'm:{[:lower:]}={[:upper:]}'
 zstyle ':completion:*' menu select
 zstyle ':completion:*' insert-tab false
-zstyle :compinstall filename '/home/david/.config/zsh/.zshrc'
+zstyle :compinstall filename '/home/david/.zshrc'
 
 compinit; bashcompinit
-PROMPT="╭─%F{magenta}%n@%M%f %F{blue}%~%f >
-╰─ "
 
 adb-dump-regulators () {
         adb shell 'cd /sys/class/regulator; for i in $(ls); do cat $i/name; [ -f "$i/max_microvolts" ] && echo "$i/name" || echo "$i/name\n"; [ -f "$i/min_microvolts" ] && cat $i/min_microvolts && echo "$i/min_microvolts"; [ -f $i/max_microvolts ] && cat $i/max_microvolts && echo "$i/max_microvolts\n"; done'
 }
 
 adb-flash () {
-        cat $2 | adb shell "cat > /dev/block/by-name/$1" &&
-        echo "Flashing finished" &&
-        [ "$3" = "-r" ] && adb reboot $4
+	cat $2 | adb shell "cat > /dev/block/by-name/$1" &&
+	echo "Flashing finished" &&
+	[ "$3" = "-r" ] && adb reboot $4
 }
 
 adb-install-magisk () {
@@ -70,43 +68,40 @@ adb-restart-root () {
         adb shell su -c "kill -9 \`ps -A | grep adbd | awk '{print $2}'\`"
 }
 
-git-branch-name() {
-  branch=$(git symbolic-ref HEAD 2> /dev/null | awk 'BEGIN{FS="/"} {print $NF}')
-  if [[ $branch == "" ]];
-  then
-    :
-  else
-    echo '- ('$branch')'
-  fi
+heimdall-wait-for-device () {
+	echo "< wait for any device >"
+	while ! heimdall detect > /dev/null 2>&1; do
+		sleep 1
+	done
 }
 
-heimdall-wait-for-device () {
-        echo "< wait for any device >"
-        while ! heimdall detect > /dev/null 2>&1; do
-                sleep 1
-        done
+precmd () {
+	gitinfo=$(git branch --show-current 2> /dev/null)
+	[[ -z $gitinfo ]] && return
+	[[ -z $(git status --porcelain) ]] && gitinfo="%F{green} ($gitinfo)%f" ||
+	gitinfo="%F{yellow} ($gitinfo %B⬤%b)%f"
 }
 
 scp-pull () {
-        scp $1:$2 .
+	scp $1:$2 .
 }
 
 search () {
-        find . -iname "*$1*"
+	find . -iname "*$1*"
 }
 
 stfu () {
-        $@>/dev/null 2>&1 &!
+	$@>/dev/null 2>&1 &!
 }
 
 ucd () {
-        depth=$1
-        dir="$PWD"
-        for iter in $(seq 1 $depth)
-        do
-                cd ..
-        done
-        pwd
+	depth=$1
+	dir="$PWD"
+	for iter in $(seq 1 $depth)
+	do
+		cd ..
+	done
+	pwd
 }
 
 alias gen-vbmeta-disabled="avbtool make_vbmeta_image --flags 2 --padding_size 4096 --output vbmeta_disabled.img"
@@ -114,6 +109,9 @@ alias heimdall="heimdall-wait-for-device && heimdall"
 alias reboot="read -q '?Reboot? [Y/N]: ' && sudo reboot"
 alias rp="realpath"
 alias vim="nvim"
+
+PROMPT="╭─%F{magenta}%n@%M%f %F{blue}%~%f\$gitinfo
+╰─ "
 
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
