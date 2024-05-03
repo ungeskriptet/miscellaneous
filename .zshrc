@@ -14,17 +14,21 @@ autoload -Uz edit-command-line \
 	     bashcompinit \
 	     bracketed-paste-magic \
 	     url-quote-magic \
+	     up-line-or-beginning-search \
+	     down-line-or-beginning-search
 
 setopt autocd extendedglob nomatch incappendhistory prompt_subst
 unsetopt beep
 bindkey -e
 
 zle -N edit-command-line
-zle -N history-beginning-search-backward-end history-search-end
-zle -N history-beginning-search-forward-end history-search-end
 zle -N self-insert url-quote-magic
 zle -N bracketed-paste bracketed-paste-magic
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
 
+bindkey "^[[A" up-line-or-beginning-search
+bindkey "^[[B" down-line-or-beginning-search
 bindkey "^[[3~" delete-char
 bindkey "^[[1;5D" backward-word
 bindkey "^[[1;5C" forward-word
