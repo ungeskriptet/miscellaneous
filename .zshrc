@@ -1,13 +1,13 @@
 #!/usr/bin/zsh
 
 EDITOR=nvim
-HISTFILE=~/.config/zsh/.histfile
+SAVEHIST=1000
 HISTSIZE=1000
+HISTFILE=~/.config/zsh/.histfile
 LS_COLORS='no=00:fi=00:di=01;34:ln=00;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=41;33;01:ex=00;32:*.cmd=00;32:*.exe=01;32:*.com=01;32:*.bat=01;32:*.btm=01;32:*.dll=01;32:*.tar=00;31:*.tbz=00;31:*.tgz=00;31:*.rpm=00;31:*.deb=00;31:*.arj=00;31:*.taz=00;31:*.lzh=00;31:*.lzma=00;31:*.zip=00;31:*.zoo=00;31:*.z=00;31:*.Z=00;31:*.gz=00;31:*.bz2=00;31:*.tb2=00;31:*.tz2=00;31:*.tbz2=00;31:*.avi=01;35:*.bmp=01;35:*.fli=01;35:*.gif=01;35:*.jpg=01;35:*.jpeg=01;35:*.mng=01;35:*.mov=01;35:*.mpg=01;35:*.pcx=01;35:*.pbm=01;35:*.pgm=01;35:*.png=01;35:*.ppm=01;35:*.tga=01;35:*.tif=01;35:*.xbm=01;35:*.xpm=01;35:*.dl=01;35:*.gl=01;35:*.wmv=01;35:*.aiff=00;32:*.au=00;32:*.mid=00;32:*.mp3=00;32:*.ogg=00;32:*.voc=00;32:*.wav=00;32:'
 PATH=$PATH:$HOME/.local/bin
-SAVEHIST=1000
-SSH_ASKPASS_REQUIRE=prefer
-SSH_ASKPASS=/usr/bin/ksshaskpass
+export SSH_ASKPASS_REQUIRE=prefer
+export SSH_ASKPASS=/usr/bin/ksshaskpass
 
 autoload -Uz edit-command-line \
 	     bashcompinit \
@@ -15,9 +15,11 @@ autoload -Uz edit-command-line \
 	     compinit \
 	     down-line-or-beginning-search \
 	     history-search-end \
+	     select-word-style \
 	     up-line-or-beginning-search \
 	     url-quote-magic
 
+select-word-style bash
 setopt autocd extendedglob nomatch incappendhistory prompt_subst
 unsetopt beep
 bindkey -e
@@ -51,7 +53,7 @@ adb-dump-regulators () {
 }
 
 adb-flash () {
-	cat $2 | adb shell "cat > /dev/block/by-name/$1" &&
+	pv $2 | adb shell "cat > /dev/block/by-name/$1" &&
 	echo "Flashing finished" &&
 	[ "$3" = "-r" ] && adb reboot $4
 }
@@ -91,7 +93,7 @@ heimdall-wait-for-device () {
 precmd () {
 	gitinfo=$(git branch --show-current 2> /dev/null)
 	[[ -z $gitinfo ]] && return
-	[[ -z $(git status --porcelain) ]] && gitinfo="%F{green} ($gitinfo)%f" ||
+	[[ -z $(git status --porcelain 2> /dev/null) ]] && gitinfo="%F{green} ($gitinfo)%f" ||
 	gitinfo="%F{yellow} ($gitinfo %B●%b)%f"
 }
 
@@ -117,6 +119,10 @@ ucd () {
 	pwd
 }
 
+alias cddevice="cd ~/projects/lineage-21.0/device/samsung/e3q"
+alias cdkernel="cd ~/projects/lineage-21.0/kernel/samsung"
+alias cdprojects="cd ~/projects"
+alias dolphin="stfu dolphin"
 alias gen-vbmeta-disabled="avbtool make_vbmeta_image --flags 2 --padding_size 4096 --output vbmeta_disabled.img"
 alias heimdall="heimdall-wait-for-device && heimdall"
 alias ls="ls --color=auto"
