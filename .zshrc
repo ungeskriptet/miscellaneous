@@ -58,11 +58,22 @@ adb-flash () {
 	[ "$3" = "-r" ] && adb reboot $4
 }
 
+adb-install-fdroid () {
+	echo "< waiting for any device >"
+	adb wait-for-device &&
+	[ -f F-Droid.apk ] && rm F-Droid.apk
+	curl https://f-droid.org/F-Droid.apk -o F-Droid.apk
+	adb install F-Droid.apk
+	[ -f F-Droid.apk ] && rm F-Droid.apk
+}
+
 adb-install-magisk () {
+	echo "< waiting for any device >"
+	adb wait-for-device &&
         [ -f magisk.apk ] && rm magisk.apk
         MAGISK_VER=$(curl --silent https://api.github.com/repos/topjohnwu/Magisk/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | sed 's/v//') &&
         curl -L https://github.com/topjohnwu/Magisk/releases/download/v$MAGISK_VER/Magisk-v$MAGISK_VER.apk -o magisk.apk &&
-        adb install magisk.apk &&
+        adb install magisk.apk
         [ -f magisk.apk ] && rm magisk.apk
 }
 
@@ -84,7 +95,7 @@ clo-manual-clone () {
 }
 
 heimdall-wait-for-device () {
-	echo "< wait for any device >"
+	echo "< waiting for any device >"
 	while ! heimdall detect > /dev/null 2>&1; do
 		sleep 1
 	done
