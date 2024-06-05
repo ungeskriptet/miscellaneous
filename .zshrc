@@ -5,9 +5,10 @@ HISTSIZE=50000
 SAVEHIST=10000
 HISTFILE=~/.config/zsh/.histfile
 LS_COLORS='no=00:fi=00:di=01;34:ln=00;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=41;33;01:ex=00;32:*.cmd=00;32:*.exe=01;32:*.com=01;32:*.bat=01;32:*.btm=01;32:*.dll=01;32:*.tar=00;31:*.tbz=00;31:*.tgz=00;31:*.rpm=00;31:*.deb=00;31:*.arj=00;31:*.taz=00;31:*.lzh=00;31:*.lzma=00;31:*.zip=00;31:*.zoo=00;31:*.z=00;31:*.Z=00;31:*.gz=00;31:*.bz2=00;31:*.tb2=00;31:*.tz2=00;31:*.tbz2=00;31:*.avi=01;35:*.bmp=01;35:*.fli=01;35:*.gif=01;35:*.jpg=01;35:*.jpeg=01;35:*.mng=01;35:*.mov=01;35:*.mpg=01;35:*.pcx=01;35:*.pbm=01;35:*.pgm=01;35:*.png=01;35:*.ppm=01;35:*.tga=01;35:*.tif=01;35:*.xbm=01;35:*.xpm=01;35:*.dl=01;35:*.gl=01;35:*.wmv=01;35:*.aiff=00;32:*.au=00;32:*.mid=00;32:*.mp3=00;32:*.ogg=00;32:*.voc=00;32:*.wav=00;32:'
-PATH=$PATH:$HOME/.local/bin
+export ANDROID_HOME=$HOME/.local/share/android-sdk
 export SSH_ASKPASS_REQUIRE=prefer
 export SSH_ASKPASS=/usr/bin/ksshaskpass
+PATH=$PATH:$HOME/.local/bin:$ANDROID_HOME/cmdline-tools/latest/bin
 
 autoload -Uz edit-command-line \
 	     bashcompinit \
@@ -78,12 +79,39 @@ adb-install-magisk () {
 }
 
 adb-restart-root () {
-        adb shell su -c "resetprop ro.debuggable 1"
-        adb shell su -c "resetprop service.adb.root 1"
-        adb shell su -c "magiskpolicy --live \'allow adbd adbd process setcurrent\'"
-        adb shell su -c "magiskpolicy --live \'allow adbd su process dyntransition\'"
-        adb shell su -c "magiskpolicy --live \'permissive { su }\'"
-        adb shell su -c "kill -9 \`ps -A | grep adbd | awk '{print $2}'\`"
+	adb shell su -c "resetprop ro.debuggable 1"
+	adb shell su -c "resetprop service.adb.root 1"
+	adb shell su -c "magiskpolicy --live \'allow adbd adbd process setcurrent\'"
+	adb shell su -c "magiskpolicy --live \'allow adbd su process dyntransition\'"
+	adb shell su -c "magiskpolicy --live \'permissive { su }\'"
+	adb shell su -c "kill -9 \`ps -A | grep adbd | awk '{print $2}'\`"
+}
+
+cddevice () {
+	cd $HOME/projects/lineage-21.0/device/$1
+}
+
+cdkernel () {
+	cd $HOME/projects/lineage-21.0/kernel/$1
+}
+
+check-files () {
+	unset input_files
+	tput smcup
+	clear
+	tput sc
+	echo "Paste in file paths: "
+	vared -c input_files
+
+	tput rc
+	tput rmcup
+	while read -r name; do
+	if grep -q "$name" $1; then
+		echo "$name found"
+	else
+		echo "------ $name not found"
+	fi
+	done <<< "$input_files"
 }
 
 clo-manual-clone () {
@@ -94,11 +122,31 @@ clo-manual-clone () {
 	unset clopath clobranch clodirname
 }
 
+dedup () {
+	sort $1 | uniq
+}
+
 heimdall-wait-for-device () {
 	echo "< waiting for any device >"
 	while ! heimdall detect > /dev/null 2>&1; do
 		sleep 1
 	done
+}
+
+libneeds () {
+	readelf -d $1 |grep '\(NEEDED\)' | sed -r 's/.*\[(.*)\]/\1/'
+}
+
+mnt-disks () {
+	sudo systemd-cryptsetup attach 1TB_HDD /dev/disk/by-uuid/c08f87b6-f6a6-4089-9bca-46df3349435e - tpm2-device=auto &&
+	sudo mount /dev/mapper/1TB_HDD /mnt/1TB_HDD
+	sudo systemd-cryptsetup attach 1TB_HDD_2 /dev/disk/by-uuid/152aed26-7e3c-49dc-ad96-b613da8040c2 - tpm2-device=auto &&
+	sudo mount /dev/mapper/1TB_HDD_2 /mnt/1TB_HDD_2
+}
+
+pmaports-build () {
+	pmbootstrap checksum $1 &&
+	pmbootstrap build $1 --force $2
 }
 
 precmd () {
@@ -114,6 +162,10 @@ scp-pull () {
 
 search () {
 	find . -iname "*$1*"
+}
+
+sourcebuildenvsetup () {
+	source ~/projects/lineage-21.0/build/envsetup.sh
 }
 
 stfu () {
@@ -137,14 +189,14 @@ upload-file () {
 	https://catgirlsare.sexy/api/upload
 }
 
-alias cddevice="cd ~/projects/lineage-21.0/device/samsung/e3q"
-alias cdkernel="cd ~/projects/lineage-21.0/kernel/samsung"
-alias cdprojects="cd ~/projects"
+alias compress-vid="ffmpeg -vcodec libx264 -crf 28 output.mp4 -i"
+alias diff="diff --color"
 alias dolphin="stfu dolphin ."
 alias gen-vbmeta-disabled="avbtool make_vbmeta_image --flags 2 --padding_size 4096 --output vbmeta_disabled.img"
 alias heimdall="heimdall-wait-for-device && heimdall"
 alias ls="ls --color=auto"
 alias reboot="read -q '?Reboot? [Y/N]: ' && sudo reboot"
+alias reboot-uefi="systemctl reboot --firmware-setup"
 alias rp="realpath"
 alias vim="nvim"
 
