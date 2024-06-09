@@ -49,6 +49,19 @@ zstyle ':completion:*' menu select
 
 compinit; bashcompinit
 
+alias clear="clear && printf '\e[3J'"
+alias compress-vid="ffmpeg -vcodec libx264 -crf 28 output.mp4 -i"
+alias diff="diff --color"
+alias dolphin="stfu dolphin ."
+alias gen-vbmeta-disabled="avbtool make_vbmeta_image --flags 2 --padding_size 4096 --output vbmeta_disabled.img"
+alias heimdall="heimdall-wait-for-device && heimdall"
+alias ls="ls --color=auto"
+alias reboot-uefi="systemctl reboot --firmware-setup"
+alias reboot="read -q '?Reboot? [Y/N]: ' && sudo reboot"
+alias rp="realpath"
+alias sudo="doas"
+alias vim="nvim"
+
 adb-dump-regulators () {
         adb shell 'cd /sys/class/regulator; for i in $(ls); do cat $i/name; [ -f "$i/max_microvolts" ] && echo "$i/name" || echo "$i/name\n"; [ -f "$i/min_microvolts" ] && cat $i/min_microvolts && echo "$i/min_microvolts"; [ -f $i/max_microvolts ] && cat $i/max_microvolts && echo "$i/max_microvolts\n"; done'
 }
@@ -138,10 +151,14 @@ libneeds () {
 }
 
 mnt-disks () {
-	sudo systemd-cryptsetup attach 1TB_HDD /dev/disk/by-uuid/c08f87b6-f6a6-4089-9bca-46df3349435e - tpm2-device=auto &&
+	printf "Password: "
+	read -s pwdisks
+	echo
+	echo $pwdisks | sudo cryptsetup open /dev/sda 1TB_HDD -
 	sudo mount /dev/mapper/1TB_HDD /mnt/1TB_HDD
-	sudo systemd-cryptsetup attach 1TB_HDD_2 /dev/disk/by-uuid/152aed26-7e3c-49dc-ad96-b613da8040c2 - tpm2-device=auto &&
+	echo $pwdisks | sudo cryptsetup open /dev/sdb 1TB_HDD_2 -
 	sudo mount /dev/mapper/1TB_HDD_2 /mnt/1TB_HDD_2
+	unset pwdisks
 }
 
 pmaports-build () {
@@ -188,17 +205,6 @@ upload-file () {
 	-F file=@$1 \
 	https://catgirlsare.sexy/api/upload
 }
-
-alias compress-vid="ffmpeg -vcodec libx264 -crf 28 output.mp4 -i"
-alias diff="diff --color"
-alias dolphin="stfu dolphin ."
-alias gen-vbmeta-disabled="avbtool make_vbmeta_image --flags 2 --padding_size 4096 --output vbmeta_disabled.img"
-alias heimdall="heimdall-wait-for-device && heimdall"
-alias ls="ls --color=auto"
-alias reboot="read -q '?Reboot? [Y/N]: ' && sudo reboot"
-alias reboot-uefi="systemctl reboot --firmware-setup"
-alias rp="realpath"
-alias vim="nvim"
 
 PROMPT="╭─%F{magenta}%n@%M%f %F{blue}%~%f\$gitinfo
 ╰─ "
