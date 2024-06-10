@@ -58,7 +58,7 @@ alias diff='diff --color=auto'
 alias dolphin="stfu dolphin ."
 alias gen-vbmeta-disabled="avbtool make_vbmeta_image --flags 2 --padding_size 4096 --output vbmeta_disabled.img"
 alias grep='grep --color=auto'
-alias heimdall="heimdall-wait-for-device && heimdall"
+alias heimdall="heimdall-wait-for-device && /usr/bin/heimdall"
 alias ip='ip -color=auto'
 alias ls="ls --color=auto"
 alias reboot="read -q '?Reboot? [Y/N]: ' && sudo reboot"
@@ -151,7 +151,7 @@ extract-win-fonts () {
 
 heimdall-wait-for-device () {
 	echo "< waiting for any device >"
-	while ! heimdall detect > /dev/null 2>&1; do
+	while ! /usr/bin/heimdall detect > /dev/null 2>&1; do
 		sleep 1
 	done
 }
