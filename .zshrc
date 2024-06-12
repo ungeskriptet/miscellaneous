@@ -33,7 +33,7 @@ zle -N edit-command-line
 zle -N self-insert url-quote-magic
 zle -N up-line-or-beginning-search
 
-bindkey "^Q" backward-kill-word
+bindkey "^H" backward-kill-word
 bindkey "^[[1;5D" backward-word
 bindkey "^[[H" beginning-of-line
 bindkey "^[[3~" delete-char
