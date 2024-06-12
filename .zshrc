@@ -33,14 +33,15 @@ zle -N edit-command-line
 zle -N self-insert url-quote-magic
 zle -N up-line-or-beginning-search
 
-bindkey "^[[1;5C" forward-word
+bindkey "^Q" backward-kill-word
 bindkey "^[[1;5D" backward-word
-bindkey "^[[3~" delete-char
-bindkey "^[[A" up-line-or-beginning-search
-bindkey "^[[B" down-line-or-beginning-search
-bindkey "^[[F" end-of-line
 bindkey "^[[H" beginning-of-line
+bindkey "^[[3~" delete-char
+bindkey "^[[B" down-line-or-beginning-search
 bindkey "^X^E" edit-command-line
+bindkey "^[[F" end-of-line
+bindkey "^[[1;5C" forward-word
+bindkey "^[[A" up-line-or-beginning-search
 
 zstyle :compinstall filename '/home/david/.zshrc'
 zstyle ':completion:*' completer _complete _ignored _correct _approximate
@@ -209,9 +210,21 @@ ucd () {
 	pwd
 }
 
+upload-zshrc () {
+	git clone git@github.com:ungeskriptet/miscellaneous &&
+	cd miscellaneous &&
+	rm .zshrc &&
+	cp $HOME/.zshrc . &&
+	sed -i '/sed/! /catgirlsare.sexy API key/c\-F key=abc \\ \# catgirlsare.sexy API key/' .zshrc
+	git diff &&
+	git add .zshrc &&
+	git commit &&
+	git push origin main
+}
+
 upload-file () {
 	curl \
-	-F key=abcdefghijklmnopqrstuvwxyz \
+	-F key=abc \ # catgirlsare.sexy API key
 	-F file=@$1 \
 	https://catgirlsare.sexy/api/upload
 }
