@@ -54,7 +54,6 @@ compinit; bashcompinit
 
 alias clear="clear && printf '\e[3J'"
 alias compress-vid="ffmpeg -vcodec libx264 -crf 28 output.mp4 -i"
-alias diff="diff --color"
 alias diff='diff --color=auto'
 alias dolphin="stfu dolphin ."
 alias gen-vbmeta-disabled="avbtool make_vbmeta_image --flags 2 --padding_size 4096 --output vbmeta_disabled.img"
@@ -222,11 +221,12 @@ ucd () {
 }
 
 upload-zshrc () {
+	[[ -d "miscellaneous" ]] && echo "ERROR: Directory miscellaneous exists already" && return ||
 	git clone git@github.com:ungeskriptet/miscellaneous &&
 	cd miscellaneous &&
 	rm .zshrc &&
 	cp $HOME/.zshrc . &&
-	sed -i '/sed/! /catgirlsare.sexy API key/c\-F key=abc \\ \# catgirlsare.sexy API key/' .zshrc
+	perl -pi.bak -e 's/(?<=-F key=)(?!.*(\.zshrc)).*(?=.*(\ \\))/abc/g' .zshrc &&
 	git diff &&
 	git add .zshrc &&
 	git commit &&
@@ -235,7 +235,7 @@ upload-zshrc () {
 
 upload-file () {
 	curl \
-	-F key=abc \ # catgirlsare.sexy API key
+	-F key=abc \
 	-F file=@$1 \
 	https://catgirlsare.sexy/api/upload
 }
