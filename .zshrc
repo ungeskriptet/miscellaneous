@@ -203,6 +203,7 @@ search () {
 }
 
 sourcebuildenvsetup () {
+	cd ~/projects/lineage-21.0
 	source ~/projects/lineage-21.0/build/envsetup.sh
 }
 
