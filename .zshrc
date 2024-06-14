@@ -78,6 +78,13 @@ adb-flash () {
 	[ "$3" = "-r" ] && adb reboot $4
 }
 
+adb-get-super-size () {
+	SUPER_PARTITION_SIZE=$(adb shell "su -c blockdev --getsize64 /dev/block/by-name/super")
+	DYNAMIC_PARTITIONS_SIZE=$((SUPER_PARTITION_SIZE - 4194304))
+	echo "BOARD_SUPER_PARTITION_SIZE := $SUPER_PARTITION_SIZE"
+	echo "BOARD_QTI_DYNAMIC_PARTITIONS_SIZE :: $DYNAMIC_PARTITIONS_SIZE"
+}
+
 adb-install-fdroid () {
 	echo "< waiting for any device >"
 	adb wait-for-device &&
@@ -148,6 +155,10 @@ dedup () {
 extract-win-fonts () {
 	7z e $1 sources/install.wim -ofonts &&
 	7z e fonts/install.wim 1/Windows/{Fonts/'*'.{ttf,ttc},System32/Licenses/neutral/'*'/'*'/license.rtf} -ofonts
+}
+
+gh-cherry-pick () {
+	curl https://github.com/$1/commit/$2.patch | git am
 }
 
 heimdall-wait-for-device () {
