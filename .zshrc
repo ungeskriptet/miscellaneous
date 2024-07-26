@@ -52,7 +52,7 @@ zstyle ':completion:*' menu select
 
 compinit; bashcompinit
 
-alias clear="clear && printf '\e[3J'"
+alias clear="clear && printf '\033c'"
 alias compress-vid="ffmpeg -vcodec libx264 -crf 28 output.mp4 -i"
 alias diff='diff --color=auto'
 alias dolphin="stfu dolphin ."
@@ -64,7 +64,7 @@ alias ls="ls --color=auto"
 alias reboot="read -q '?Reboot? [Y/N]: ' && sudo reboot"
 alias reboot-uefi="systemctl reboot --firmware-setup"
 alias rp="realpath"
-alias sudo="doas"
+alias udevreload="sudo udevadm control --reload-rules && sudo udevadm trigger"
 alias vim="nvim"
 
 adb-dump-regulators () {
@@ -239,6 +239,12 @@ upload-file () {
 	-F key=abc \
 	-F file=@$1 \
 	https://catgirlsare.sexy/api/upload
+}
+
+webm2gif() {
+    ffmpeg -y -i "$1" -vf palettegen _tmp_palette.png
+    ffmpeg -y -i "$1" -i _tmp_palette.png -filter_complex paletteuse -r 10  "${1%.webm}.gif"
+    rm _tmp_palette.png
 }
 
 PROMPT="╭─%F{magenta}%n@%M%f %F{blue}%~%f\$gitinfo
