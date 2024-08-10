@@ -4,6 +4,7 @@ set incsearch
 set guicursor=n-v-c-i:block
 set autoindent noexpandtab tabstop=8 shiftwidth=8
 set mouse=
+set invlist
 syntax on
 highlight RedundantSpaces ctermbg=red guibg=red
 match RedundantSpaces /\s\+$/
