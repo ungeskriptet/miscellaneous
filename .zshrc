@@ -255,5 +255,10 @@ webm2gif() {
 PROMPT="╭─%F{magenta}%n@%M%f %F{blue}%~%f\$gitinfo
 ╰─ "
 
+[[ -e /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] &&
+source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ||
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+[[ -e /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] &&
+source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ||
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
