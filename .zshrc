@@ -11,10 +11,13 @@ BUILD_HOSTNAME=david-ryuzu
 BUILD_USERNAME=david
 export PIP_BREAK_SYSTEM_PACKAGES=1
 export ANDROID_HOME=$HOME/.local/share/android-sdk
-export SSH_ASKPASS_REQUIRE=prefer
-export SSH_ASKPASS=/usr/bin/ksshaskpass
 export LESS='-R --use-color -Dd+r$Du+b$'
 export PATH=$PATH:$HOME/.local/bin:$ANDROID_HOME/cmdline-tools/latest/bin
+
+[[ $XDG_CURRENT_DESKTOP = "KDE" ]] &&
+export SSH_ASKPASS_REQUIRE=prefer &&
+export SSH_ASKPASS=/usr/bin/ksshaskpass ||
+eval $(ssh-agent)
 
 autoload -Uz edit-command-line \
 	     bashcompinit \
