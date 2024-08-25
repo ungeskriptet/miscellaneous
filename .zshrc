@@ -103,11 +103,20 @@ adb-install-fdroid () {
 adb-install-magisk () {
 	echo "< waiting for any device >"
 	adb wait-for-device &&
-        [ -f magisk.apk ] && rm magisk.apk
-        MAGISK_VER=$(curl --silent https://api.github.com/repos/topjohnwu/Magisk/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | sed 's/v//') &&
-        curl -L https://github.com/topjohnwu/Magisk/releases/download/v$MAGISK_VER/Magisk-v$MAGISK_VER.apk -o magisk.apk &&
-        adb install magisk.apk
-        [ -f magisk.apk ] && rm magisk.apk
+	[ -f magisk.apk ] && rm magisk.apk
+	MAGISK_VER=$(curl --silent https://api.github.com/repos/topjohnwu/Magisk/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | sed 's/v//') &&
+	curl -L https://github.com/topjohnwu/Magisk/releases/download/v$MAGISK_VER/Magisk-v$MAGISK_VER.apk -o magisk.apk &&
+	adb install magisk.apk
+	[ -f magisk.apk ] && rm magisk.apk
+}
+
+adb-last-kmsg () {
+	echo "< waiting for any device >" &&
+	adb wait-for-recovery &&
+	rm -rf ~/Downloads/last_kmsg &&
+	adb pull /proc/last_kmsg $HOME/Downloads/last_kmsg &&
+	[ "$1" = "--view" ] &&
+	nvim $HOME/Downloads/last_kmsg
 }
 
 adb-restart-root () {
