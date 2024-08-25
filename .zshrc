@@ -137,25 +137,6 @@ cdkernel () {
 	cd $HOME/projects/lineage-21.0/kernel/$1
 }
 
-check-files () {
-	unset input_files
-	tput smcup
-	clear
-	tput sc
-	echo "Paste in file paths: "
-	vared -c input_files
-
-	tput rc
-	tput rmcup
-	while read -r name; do
-	if grep -q "$name" $1; then
-		echo "$name found"
-	else
-		echo "------ $name not found"
-	fi
-	done <<< "$input_files"
-}
-
 clo-manual-clone () {
 	vared -p "CLO GitLab path: " -c clopath
 	vared -p "Branch: " -c clobranch
