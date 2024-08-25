@@ -139,13 +139,10 @@ cdkernel () {
 
 check-files () {
 	unset input
-	tput smcup
 	clear
-	tput sc
 	echo "Paste in file paths:"
 	vared -c input
-	tput rc
-	tput rmcup
+	clear
 	while read -r name; do
 		# Skip comments
 		[ "$(echo $name | cut -c1)" = "#" ] &&
