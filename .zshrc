@@ -34,6 +34,9 @@ setopt autocd extendedglob nomatch incappendhistory prompt_subst hist_ignore_all
 unsetopt beep
 bindkey -e
 
+compinit; bashcompinit
+eval "$(register-python-argcomplete pmbootstrap)"
+
 zle -N bracketed-paste bracketed-paste-magic
 zle -N down-line-or-beginning-search
 zle -N edit-command-line
@@ -57,7 +60,6 @@ zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*' matcher-list 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' 'm:{[:lower:]}={[:upper:]}'
 zstyle ':completion:*' menu select
 
-compinit; bashcompinit
 
 alias clear="clear && printf '\033c'"
 alias compress-vid="ffmpeg -vcodec libx264 -crf 28 output.mp4 -i"
@@ -73,6 +75,15 @@ alias reboot-uefi="systemctl reboot --firmware-setup"
 alias rp="realpath"
 alias udevreload="sudo udevadm control --reload-rules && sudo udevadm trigger"
 alias vim="nvim"
+
+adb-boot-log () {
+	adb wait-for-recovery &&
+	adb shell "[ -f /metadata/boot_log.txt ] || mount /dev/block/by-name/metadata /metadata" &&
+	rm -rf $HOME/Downloads/boot_log.txt &&
+	adb pull /metadata/boot_log.txt $HOME/Downloads/boot_log.txt &&
+	[ "$1" = "--view" ] &&
+	nvim $HOME/Downloads/boot_log.txt
+}
 
 adb-dump-regulators () {
         adb shell 'cd /sys/class/regulator; for i in $(ls); do cat $i/name; [ -f "$i/max_microvolts" ] && echo "$i/name" || echo "$i/name\n"; [ -f "$i/min_microvolts" ] && cat $i/min_microvolts && echo "$i/min_microvolts"; [ -f $i/max_microvolts ] && cat $i/max_microvolts && echo "$i/max_microvolts\n"; done'
