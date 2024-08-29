@@ -64,6 +64,7 @@ zstyle ':completion:*' menu select
 alias clear="clear && printf '\033c'"
 alias compress-vid="ffmpeg -vcodec libx264 -crf 28 output.mp4 -i"
 alias diff='diff --color=auto'
+alias docker-update='docker system prune -a -f && sudo docker-compose -f /opt/docker/compose.yaml pull && sudo docker-compose -f /opt/docker/compose.yaml up -d && docker system prune -a -f'
 alias dolphin="stfu dolphin ."
 alias gen-vbmeta-disabled="avbtool make_vbmeta_image --flags 2 --padding_size 4096 --output vbmeta_disabled.img"
 alias grep='grep --color=auto'
