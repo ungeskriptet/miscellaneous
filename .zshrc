@@ -1,17 +1,38 @@
 #!/usr/bin/zsh
-
+export XDG_DATA_HOME=$HOME/.local/share
+export XDG_CONFIG_HOME=$HOME/.config
+export XDG_STATE_HOME=$HOME/.local/state
+export XDG_CACHE_HOME=$HOME/.cache
+mkdir -p \
+	$XDG_CACHE_HOME/zsh \
+	$XDG_CONFIG_HOME/git \
+	$XDG_CONFIG_HOME/gtk-2.0 \
+	$XDG_CONFIG_HOME/java \
+	$XDG_CONFIG_HOME/mitmproxy \
+	$XDG_DATA_HOME/android \
+	$XDG_DATA_HOME/cargo \
+	$XDG_DATA_HOME/gnupg \
+	$XDG_DATA_HOME/gradle \
 export EDITOR=nvim
 export HISTSIZE=50000
 export SAVEHIST=10000
-export HISTFILE=~/.config/zsh/.histfile
 export OUT=~/projects/lineage-21.0/out/target/product/e3q
 export ANDROID_PRODUCT_OUT=$OUT
 export BUILD_HOSTNAME=david-ryuzu
 export BUILD_USERNAME=david
 export PIP_BREAK_SYSTEM_PACKAGES=1
 export ANDROID_HOME=$HOME/.local/share/android-sdk
+export ANDROID_USER_HOME="$XDG_DATA_HOME"/android
 export LESS='-R --use-color -Dd+r$Du+b$'
 export PATH=$PATH:$HOME/.local/bin:$ANDROID_HOME/cmdline-tools/latest/bin
+export PYTHON_HISTORY=$XDG_CACHE_HOME/python_history
+export GNUPGHOME="$XDG_DATA_HOME"/gnupg
+export GRADLE_USER_HOME="$XDG_DATA_HOME"/gradle
+export GTK2_RC_FILES="$XDG_CONFIG_HOME"/gtk-2.0/gtkrc
+export HISTFILE=$XDG_CACHE_HOME/zsh/histfile
+export _JAVA_OPTIONS=-Djava.util.prefs.userRoot="$XDG_CONFIG_HOME"/java
+export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=${XDG_CONFIG_HOME}/java -Djavafx.cachedir=${XDG_CACHE_HOME}/openjfx"
+export CARGO_HOME="$XDG_DATA_HOME"/cargo
 
 [[ $XDG_CURRENT_DESKTOP = "KDE" ]] &&
 export SSH_ASKPASS_REQUIRE=prefer &&
@@ -33,7 +54,8 @@ setopt autocd extendedglob nomatch incappendhistory prompt_subst hist_ignore_all
 unsetopt beep
 bindkey -e
 
-compinit; bashcompinit
+bashcompinit
+compinit -d "$XDG_CACHE_HOME"/zsh/zcompdump-"$ZSH_VERSION"
 eval "$(register-python-argcomplete pmbootstrap)"
 
 zle -N bracketed-paste bracketed-paste-magic
@@ -52,13 +74,14 @@ bindkey "^[[F" end-of-line
 bindkey "^[[1;5C" forward-word
 bindkey "^[[A" up-line-or-beginning-search
 
-zstyle :compinstall filename '/home/david/.zshrc'
+zstyle :compinstall filename '/home/david/.config/zsh/.zshrc'
 zstyle ':completion:*' completer _complete _ignored _correct _approximate
 zstyle ':completion:*' insert-tab false
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*' matcher-list 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' 'm:{[:lower:]}={[:upper:]}'
 zstyle ':completion:*' menu select
 
+alias adb='HOME="$XDG_DATA_HOME"/android adb'
 alias adb-poweroff="adb shell reboot -p"
 alias clear="clear && printf '\033c'"
 alias compress-vid="ffmpeg -vcodec libx264 -crf 28 output.mp4 -i"
@@ -70,11 +93,14 @@ alias grep='grep --color=auto'
 alias heimdall="heimdall-wait-for-device && /usr/bin/heimdall"
 alias ip='ip -color=auto'
 alias ls="ls --color=auto"
+alias mitmproxy="mitmproxy --set confdir=$XDG_CONFIG_HOME/mitmproxy"
+alias mitmweb="mitmweb --set confdir=$XDG_CONFIG_HOME/mitmproxy"
 alias reboot="read -q '?Reboot? [Y/N]: ' && sudo reboot"
 alias reboot-uefi="systemctl reboot --firmware-setup"
 alias rp="realpath"
 alias udevreload="sudo udevadm control --reload-rules && sudo udevadm trigger"
 alias vim="nvim"
+alias wget=wget --hsts-file="$XDG_DATA_HOME/wget-hsts"
 
 adb-boot-log () {
 	adb wait-for-recovery &&
@@ -176,6 +202,11 @@ dedup () {
 	sort $1 | uniq
 }
 
+downloads () {
+	[ -d $HOME/download ] && cd $HOME/download/$1 ||
+	cd $HOME/Downloads/$1
+}
+
 extract-win-fonts () {
 	7z e $1 sources/install.wim -ofonts &&
 	7z e fonts/install.wim 1/Windows/{Fonts/'*'.{ttf,ttc},System32/Licenses/neutral/'*'/'*'/license.rtf} -ofonts
@@ -251,7 +282,7 @@ upload-zshrc () {
 	git clone git@github.com:ungeskriptet/miscellaneous &&
 	cd miscellaneous &&
 	rm .zshrc &&
-	cp $HOME/.zshrc . &&
+	cp $XDG_CONFIG_HOME/zsh/.zshrc . &&
 	perl -pi.bak -e 's/(?<=-F key=)(?!.*(\.zshrc)).*(?=.*(\ \\))/abc/g' .zshrc &&
 	git diff &&
 	git add .zshrc &&
