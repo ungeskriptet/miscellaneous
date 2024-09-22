@@ -15,7 +15,8 @@ checkfile () {
 		SYMLINKLIBS="$SYMLINKLIBS $1"
 	else
 		ls $1 2> /dev/null &&
-		FOUNDLIBS="$FOUNDLIBS $1"
+		(echo $FOUNDLIBS | grep -q $1 ||
+		FOUNDLIBS="$FOUNDLIBS $1")
 	fi
 }
 
