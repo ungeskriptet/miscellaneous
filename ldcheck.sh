@@ -23,12 +23,12 @@ checkfile () {
 checklibs () {
 	LIBRARIES=$(getlibs $1)
 	for i in $LIBRARIES; do
+		checkfile vendor/lib64/$i ||
+		checkfile vendor/lib64/hw/$i ||
 		checkfile system/lib64/$i ||
 		checkfile system/lib64/hw/$i ||
 		checkfile system/system/lib64/$i ||
 		checkfile system/system/lib64/hw/$i ||
-		checkfile vendor/lib64/$i ||
-		checkfile vendor/lib64/hw/$i ||
 		echo $MISSINGLIBS | grep -q $i ||
 		MISSINGLIBS="$MISSINGLIBS $i"
 	done
