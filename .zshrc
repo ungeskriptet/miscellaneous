@@ -98,6 +98,8 @@ alias mitmweb="mitmweb --set confdir=$XDG_CONFIG_HOME/mitmproxy"
 alias reboot="read -q '?Reboot? [Y/N]: ' && sudo reboot"
 alias reboot-uefi="systemctl reboot --firmware-setup"
 alias rp="realpath"
+alias scp='scp -o "AddKeysToAgent yes"'
+alias ssh='ssh -o "AddKeysToAgent yes"'
 alias udevreload="sudo udevadm control --reload-rules && sudo udevadm trigger"
 alias vim="nvim"
 alias wget=wget --hsts-file="$XDG_DATA_HOME/wget-hsts"
