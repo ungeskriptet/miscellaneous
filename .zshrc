@@ -12,7 +12,7 @@ mkdir -p \
 	$XDG_DATA_HOME/android \
 	$XDG_DATA_HOME/cargo \
 	$XDG_DATA_HOME/gnupg \
-	$XDG_DATA_HOME/gradle \
+	$XDG_DATA_HOME/gradle
 export EDITOR=nvim
 export HISTSIZE=50000
 export SAVEHIST=10000
@@ -172,6 +172,11 @@ cddevice () {
 	cd $HOME/projects/lineage-21.0/device/$1
 }
 
+cddownloads () {
+	[ -d $HOME/download ] && cd $HOME/download/$1 ||
+	cd $HOME/Downloads/$1
+}
+
 cdkernel () {
 	cd $HOME/projects/lineage-21.0/kernel/$1
 }
@@ -204,18 +209,13 @@ dedup () {
 	sort $1 | uniq
 }
 
-downloads () {
-	[ -d $HOME/download ] && cd $HOME/download/$1 ||
-	cd $HOME/Downloads/$1
-}
-
 extract-win-fonts () {
 	7z e $1 sources/install.wim -ofonts &&
 	7z e fonts/install.wim 1/Windows/{Fonts/'*'.{ttf,ttc},System32/Licenses/neutral/'*'/'*'/license.rtf} -ofonts
 }
 
 gh-cherry-pick () {
-	curl https://github.com/$1/commit/$2.patch | git am
+	curl https://github.com/$1/commit/$2.patch | git am || (echo "Aborting patch"; git am --abort)
 }
 
 heimdall-wait-for-device () {
