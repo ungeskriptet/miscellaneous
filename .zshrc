@@ -16,9 +16,9 @@ mkdir -p \
 export EDITOR=nvim
 export HISTSIZE=50000
 export SAVEHIST=10000
-export OUT=~/projects/lineage-21.0/out/target/product/e3q
+export OUT=~/projects/lineage-22.0/out/target/product/e3q
 export ANDROID_PRODUCT_OUT=$OUT
-export BUILD_HOSTNAME=david-ryuzu
+export BUILD_HOSTNAME=ryuzu
 export BUILD_USERNAME=david
 export PIP_BREAK_SYSTEM_PACKAGES=1
 export ANDROID_HOME=$HOME/.local/share/android-sdk
@@ -103,6 +103,7 @@ alias ssh='ssh -o "AddKeysToAgent yes"'
 alias udevreload="sudo udevadm control --reload-rules && sudo udevadm trigger"
 alias vim="nvim"
 alias wget=wget --hsts-file="$XDG_DATA_HOME/wget-hsts"
+alias wg-genall="wg genkey | tee $(tty) | wg pubkey && wg genpsk"
 
 adb-boot-log () {
 	adb wait-for-recovery &&
@@ -169,7 +170,7 @@ adb-restart-root () {
 }
 
 cddevice () {
-	cd $HOME/projects/lineage-21.0/device/$1
+	cd $HOME/projects/lineage-22.0/device/$1
 }
 
 cddownloads () {
@@ -178,7 +179,7 @@ cddownloads () {
 }
 
 cdkernel () {
-	cd $HOME/projects/lineage-21.0/kernel/$1
+	cd $HOME/projects/lineage-22.0/kernel/$1
 }
 
 check-files () {
@@ -261,8 +262,8 @@ search () {
 }
 
 sourcebuildenvsetup () {
-	cd ~/projects/lineage-21.0
-	source ~/projects/lineage-21.0/build/envsetup.sh
+	cd ~/projects/lineage-22.0
+	source ~/projects/lineage-22.0/build/envsetup.sh
 }
 
 stfu () {
