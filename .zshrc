@@ -206,8 +206,8 @@ clo-manual-clone () {
 	unset clopath clobranch clodirname
 }
 
-dedup () {
-	sort $1 | uniq
+duplines () {
+	sort $1 | uniq --count --repeated
 }
 
 extract-win-fonts () {
@@ -258,7 +258,7 @@ scp-pull () {
 }
 
 search () {
-	find . -iname "*$1*"
+	find . -iname "*$1*" | cut -c3-
 }
 
 sourcebuildenvsetup () {
