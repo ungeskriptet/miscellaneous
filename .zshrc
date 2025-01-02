@@ -17,7 +17,7 @@ mkdir -p \
 export EDITOR=nvim
 export HISTSIZE=50000
 export SAVEHIST=10000
-export OUT=~/projects/lineage-22.0/out/target/product/e3q
+export OUT=~/projects/lineage-22.1/out/target/product/e3q
 export ANDROID_PRODUCT_OUT=$OUT
 export BUILD_HOSTNAME=ryuzu
 export BUILD_USERNAME=david
@@ -34,6 +34,7 @@ export HISTFILE=$XDG_CACHE_HOME/zsh/histfile
 export _JAVA_OPTIONS=-Djava.util.prefs.userRoot="$XDG_CONFIG_HOME"/java
 export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=${XDG_CONFIG_HOME}/java -Djavafx.cachedir=${XDG_CACHE_HOME}/openjfx"
 export CARGO_HOME="$XDG_DATA_HOME"/cargo
+export NTFY_TOKEN=""
 
 [[ $XDG_CURRENT_DESKTOP = "KDE" ]] &&
 export SSH_ASKPASS_REQUIRE=prefer &&
@@ -84,6 +85,7 @@ zstyle ':completion:*' menu select
 
 alias adb='HOME="$XDG_DATA_HOME"/android adb'
 alias adb-poweroff="adb shell reboot -p"
+alias adb-skip-wizard="adb shell settings put secure user_setup_complete 1 && adb shell settings put global device_provisioned 1"
 alias clear="clear && printf '\033c'"
 alias compress-vid="ffmpeg -vcodec libx264 -crf 28 output.mp4 -i"
 alias diff='diff --color=auto'
@@ -96,6 +98,7 @@ alias ip='ip -color=auto'
 alias ls="ls --color=auto"
 alias mitmproxy="mitmproxy --set confdir=$XDG_CONFIG_HOME/mitmproxy"
 alias mitmweb="mitmweb --set confdir=$XDG_CONFIG_HOME/mitmproxy"
+alias odin4="heimdall-wait-for-device && sleep 1 && /usr/bin/odin4"
 alias reboot="read -q '?Reboot? [Y/N]: ' && sudo reboot"
 alias reboot-uefi="systemctl reboot --firmware-setup"
 alias rp="realpath"
@@ -105,6 +108,7 @@ alias udevreload="sudo udevadm control --reload-rules && sudo udevadm trigger"
 alias vim="nvim"
 alias wget=wget --hsts-file="$XDG_DATA_HOME/wget-hsts"
 alias wg-genall="wg genkey | tee $(tty) | wg pubkey && wg genpsk"
+alias zshrc="nvim $HOME/.config/zsh/.zshrc"
 
 adb-boot-log () {
 	adb wait-for-recovery &&
@@ -171,16 +175,16 @@ adb-restart-root () {
 }
 
 cddevice () {
-	cd $HOME/projects/lineage-22.0/device/$1
+	cd $HOME/projects/lineage-22.1/device/$1
 }
 
 cddownloads () {
-	[ -d $HOME/download ] && cd $HOME/download/$1 ||
+	[ -d $HOME/download ] && (cd $HOME/download/$1; true) ||
 	cd $HOME/Downloads/$1
 }
 
 cdkernel () {
-	cd $HOME/projects/lineage-22.0/kernel/$1
+	cd $HOME/projects/lineage-22.1/kernel/$1
 }
 
 check-files () {
@@ -217,7 +221,7 @@ extract-win-fonts () {
 }
 
 gh-cherry-pick () {
-	curl https://github.com/$1/commit/$2.patch | git am || (echo "Aborting patch"; git am --abort)
+	curl https://github.com/$1/commit/$2.patch | git am
 }
 
 heimdall-wait-for-device () {
@@ -232,14 +236,10 @@ libneeds () {
 }
 
 mnt-disks () {
-	printf "Password: "
-	read -s pwdisks
-	echo
-	echo $pwdisks | sudo cryptsetup open /dev/sda 1TB_HDD -
+	kwallet-query -r c08f87b6-f6a6-4089-9bca-46df3349435e kdewallet -f SolidLuks | sudo cryptsetup open /dev/sda 1TB_HDD -
 	sudo mount /dev/mapper/1TB_HDD /mnt/1TB_HDD
-	echo $pwdisks | sudo cryptsetup open /dev/sdb 1TB_HDD_2 -
+	kwallet-query -r 152aed26-7e3c-49dc-ad96-b613da8040c2 kdewallet -f SolidLuks | sudo cryptsetup open /dev/sdb 1TB_HDD_2 -
 	sudo mount /dev/mapper/1TB_HDD_2 /mnt/1TB_HDD_2
-	unset pwdisks
 }
 
 pmaports-build () {
@@ -259,16 +259,23 @@ scp-pull () {
 }
 
 search () {
-	find . -iname "*$1*" | cut -c3-
+	[ -z "$2" ] &&
+	find . -iname "*$1*" | cut -c3- ||
+	find $2 -iname "*$1*"
 }
 
 sourcebuildenvsetup () {
-	cd ~/projects/lineage-22.0
-	source ~/projects/lineage-22.0/build/envsetup.sh
+	cd ~/projects/lineage-22.1
+	source ~/projects/lineage-22.1/build/envsetup.sh
 }
 
 stfu () {
 	$@>/dev/null 2>&1 &!
+}
+
+sync-music () {
+	cd "$HOME/Music/Rhythm Game Music" &&
+	yt-dlp -x --download-archive downloaded.txt https://youtube.com/playlist\?list\=PLpQJp2SybtJnKlIg3KdrgXc2HJcguh81M
 }
 
 ucd () {
@@ -288,6 +295,7 @@ upload-zshrc () {
 	rm .zshrc &&
 	cp $XDG_CONFIG_HOME/zsh/.zshrc . &&
 	perl -pi.bak -e 's/(?<=-F key=)(?!.*(\.zshrc)).*(?=.*(\ \\))/abc/g' .zshrc &&
+	sed -i '0,/export NTFY_TOKEN="tk_.*"/ s/export NTFY_TOKEN="tk_.*"/export NTFY_TOKEN=""/' .zshrc &&
 	git diff &&
 	git add .zshrc &&
 	git commit &&
