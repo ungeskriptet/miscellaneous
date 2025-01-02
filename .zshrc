@@ -179,7 +179,7 @@ cddevice () {
 }
 
 cddownloads () {
-	[ -d $HOME/download ] && (cd $HOME/download/$1; true) ||
+	[ -d $HOME/download ] && cd "$HOME/download/$1" && true ||
 	cd $HOME/Downloads/$1
 }
 
