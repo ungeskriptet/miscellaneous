@@ -101,6 +101,7 @@ alias mitmweb="mitmweb --set confdir=$XDG_CONFIG_HOME/mitmproxy"
 alias odin4="heimdall-wait-for-device && sleep 1 && /usr/bin/odin4"
 alias reboot="read -q '?Reboot? [Y/N]: ' && sudo reboot"
 alias reboot-uefi="systemctl reboot --firmware-setup"
+alias reposync="cd $HOME/projects/lineage-22.1 && source build/envsetup.sh && repo sync -c -j14"
 alias rp="realpath"
 alias scp='scp -o "AddKeysToAgent yes"'
 alias ssh='ssh -o "AddKeysToAgent yes"'
@@ -185,6 +186,10 @@ cddownloads () {
 
 cdkernel () {
 	cd $HOME/projects/lineage-22.1/kernel/$1
+}
+
+cdprojects () {
+	cd $HOME/projects/$1
 }
 
 check-files () {
