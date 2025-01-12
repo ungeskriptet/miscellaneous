@@ -17,7 +17,8 @@ mkdir -p \
 export EDITOR=nvim
 export HISTSIZE=50000
 export SAVEHIST=10000
-export OUT=~/projects/lineage-22.1/out/target/product/e3q
+export LINEAGE=lineage-22.1
+export OUT=$HOME/projects/$LINEAGE/out/target/product/e3q
 export ANDROID_PRODUCT_OUT=$OUT
 export BUILD_HOSTNAME=ryuzu
 export BUILD_USERNAME=david
@@ -101,7 +102,7 @@ alias mitmweb="mitmweb --set confdir=$XDG_CONFIG_HOME/mitmproxy"
 alias odin4="heimdall-wait-for-device && sleep 1 && /usr/bin/odin4"
 alias reboot="read -q '?Reboot? [Y/N]: ' && sudo reboot"
 alias reboot-uefi="systemctl reboot --firmware-setup"
-alias reposync="cd $HOME/projects/lineage-22.1 && source build/envsetup.sh && repo sync -c -j14"
+alias reposync="cd $HOME/projects/$LINEAGE && source build/envsetup.sh && repo sync -c -j14"
 alias rp="realpath"
 alias scp='scp -o "AddKeysToAgent yes"'
 alias ssh='ssh -o "AddKeysToAgent yes"'
@@ -141,7 +142,7 @@ adb-install-fdroid () {
 	echo "< waiting for any device >"
 	adb wait-for-device &&
 	[ -f F-Droid.apk ] && rm F-Droid.apk
-	curl https://f-droid.org/F-Droid.apk -o F-Droid.apk
+	curl https://f-droid.org/repo/org.fdroid.fdroid_$(curl -s https://f-droid.org/api/v1/packages/org.fdroid.fdroid | jq .suggestedVersionCode).apk -o F-Droid.apk
 	adb install F-Droid.apk
 	[ -f F-Droid.apk ] && rm F-Droid.apk
 }
@@ -176,7 +177,7 @@ adb-restart-root () {
 }
 
 cddevice () {
-	cd $HOME/projects/lineage-22.1/device/$1
+	cd $HOME/projects/$LINEAGE/device/$1
 }
 
 cddownloads () {
@@ -185,7 +186,7 @@ cddownloads () {
 }
 
 cdkernel () {
-	cd $HOME/projects/lineage-22.1/kernel/$1
+	cd $HOME/projects/$LINEAGE/kernel/$1
 }
 
 cdprojects () {
@@ -229,6 +230,10 @@ gh-cherry-pick () {
 	curl https://github.com/$1/commit/$2.patch | git am
 }
 
+git-grepall () {
+	git grep $1 $(git rev-list --all)
+}
+
 heimdall-wait-for-device () {
 	echo "< waiting for any device >"
 	while ! /usr/bin/heimdall detect > /dev/null 2>&1; do
@@ -270,8 +275,8 @@ search () {
 }
 
 sourcebuildenvsetup () {
-	cd ~/projects/lineage-22.1
-	source ~/projects/lineage-22.1/build/envsetup.sh
+	cd ~/projects/$LINEAGE
+	source ~/projects/$LINEAGE/build/envsetup.sh
 }
 
 stfu () {
