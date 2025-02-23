@@ -40,7 +40,7 @@ export NTFY_TOKEN=""
 [[ $XDG_CURRENT_DESKTOP = "KDE" ]] &&
 export SSH_ASKPASS_REQUIRE=prefer &&
 export SSH_ASKPASS=/usr/bin/ksshaskpass ||
-eval $(ssh-agent)
+[ "$XDG_CURRENT_DESKTOP" != "GNOME" ] && eval $(ssh-agent)
 
 autoload -Uz edit-command-line \
 	     bashcompinit \
