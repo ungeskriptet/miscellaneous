@@ -110,6 +110,7 @@ alias udevreload="sudo udevadm control --reload-rules && sudo udevadm trigger"
 alias vim="nvim"
 alias wget=wget --hsts-file="$XDG_DATA_HOME/wget-hsts"
 alias wg-genall="wg genkey | tee $(tty) | wg pubkey && wg genpsk"
+alias yt-dlp-mp4="yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'"
 alias zshrc="nvim $HOME/.config/zsh/.zshrc"
 
 adb-boot-log () {
@@ -138,13 +139,13 @@ adb-get-super-size () {
 	echo "BOARD_QTI_DYNAMIC_PARTITIONS_SIZE :: $DYNAMIC_PARTITIONS_SIZE"
 }
 
-adb-install-fdroid () {
+fdroid-install () {
 	echo "< waiting for any device >"
 	adb wait-for-device &&
-	[ -f F-Droid.apk ] && rm F-Droid.apk
-	curl https://f-droid.org/repo/org.fdroid.fdroid_$(curl -s https://f-droid.org/api/v1/packages/org.fdroid.fdroid | jq .suggestedVersionCode).apk -o F-Droid.apk
-	adb install F-Droid.apk
-	[ -f F-Droid.apk ] && rm F-Droid.apk
+	[ -f "$1.apk" ] && rm "$1.apk"
+	curl https://f-droid.org/repo/$1_$(curl -s https://f-droid.org/api/v1/packages/$1 | jq .suggestedVersionCode).apk -o "$1.apk"
+	adb install "$1.apk"
+	[ -f "$1.apk" ] && rm "$1.apk"
 }
 
 adb-install-magisk () {
