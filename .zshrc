@@ -17,7 +17,7 @@ mkdir -p \
 export EDITOR=nvim
 export HISTSIZE=50000
 export SAVEHIST=10000
-export LINEAGE=lineage-22.1
+export LINEAGE=lineage-22.2
 export OUT=$HOME/projects/$LINEAGE/out/target/product/e3q
 export ANDROID_PRODUCT_OUT=$OUT
 export BUILD_HOSTNAME=ryuzu
@@ -36,11 +36,20 @@ export _JAVA_OPTIONS=-Djava.util.prefs.userRoot="$XDG_CONFIG_HOME"/java
 export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=${XDG_CONFIG_HOME}/java -Djavafx.cachedir=${XDG_CACHE_HOME}/openjfx"
 export CARGO_HOME="$XDG_DATA_HOME"/cargo
 export NTFY_TOKEN=""
+export USE_CCACHE=1
+export CCACHE_EXEC=/usr/bin/ccache
+
+ccache -M 50G > /dev/null
+
+if [ -e "$HOME"/.bitwarden-ssh-agent.sock ]; then
+	export SSH_AUTH_SOCK="$HOME"/.bitwarden-ssh-agent.sock
+else
+	eval "$(ssh-agent -s)"
+fi
 
 [[ $XDG_CURRENT_DESKTOP = "KDE" ]] &&
 export SSH_ASKPASS_REQUIRE=prefer &&
-export SSH_ASKPASS=/usr/bin/ksshaskpass ||
-[ "$XDG_CURRENT_DESKTOP" != "GNOME" ] && eval $(ssh-agent)
+export SSH_ASKPASS=/usr/bin/ksshaskpass
 
 autoload -Uz edit-command-line \
 	     bashcompinit \
