@@ -39,6 +39,7 @@ export NTFY_TOKEN=""
 export USE_CCACHE=1
 export CCACHE_EXEC=/usr/bin/ccache
 
+command -v ccache &> /dev/null &&
 ccache -M 50G > /dev/null
 
 if [ -e "$HOME"/.bitwarden-ssh-agent.sock ]; then
