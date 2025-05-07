@@ -295,6 +295,7 @@ stfu () {
 }
 
 sync-music () {
+	mkdir -p "$HOME/Music/Rhythm Game Music"
 	cd "$HOME/Music/Rhythm Game Music" &&
 	yt-dlp -x --download-archive downloaded.txt https://youtube.com/playlist\?list\=PLpQJp2SybtJnKlIg3KdrgXc2HJcguh81M
 }
