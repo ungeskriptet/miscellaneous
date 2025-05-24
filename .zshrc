@@ -42,12 +42,6 @@ export CCACHE_EXEC=/usr/bin/ccache
 command -v ccache &> /dev/null &&
 ccache -M 50G > /dev/null
 
-if [ -e "$HOME"/.bitwarden-ssh-agent.sock ]; then
-	export SSH_AUTH_SOCK="$HOME"/.bitwarden-ssh-agent.sock
-else
-	eval "$(ssh-agent -s)"
-fi
-
 [[ $XDG_CURRENT_DESKTOP = "KDE" ]] &&
 export SSH_ASKPASS_REQUIRE=prefer &&
 export SSH_ASKPASS=/usr/bin/ksshaskpass
@@ -273,10 +267,6 @@ precmd () {
 	[[ -z $gitinfo ]] && return
 	[[ -z $(git status --porcelain 2> /dev/null) ]] && gitinfo="%F{green} ($gitinfo)%f" ||
 	gitinfo="%F{yellow} ($gitinfo %B●%b)%f"
-}
-
-scp-pull () {
-	scp $1:$2 .
 }
 
 search () {
