@@ -42,6 +42,7 @@ export CCACHE_EXEC=/usr/bin/ccache
 command -v ccache &> /dev/null &&
 ccache -M 50G > /dev/null
 
+[[ -z $SSH_AUTH_SOCK ]] &&
 export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket
 [[ $XDG_CURRENT_DESKTOP = "KDE" ]] &&
 export SSH_ASKPASS_REQUIRE=prefer &&
